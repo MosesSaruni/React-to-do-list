@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { FC, ChangeEvent, useState } from "react";
+import { ITask } from "./interface";
+import TodoTask from "./Components/TodoTask";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: FC = () => {
+  const [task, setTask] = useState<string>("");
+  const [deadLine, setDeadline] = useState<number>(0);
+  const [todo, setTodo] = useState<ITask[]>([]);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.name === "task") {
+      setTask(event.target.value);
+    } else {
+      setDeadline(Number(event.target.value));
+    }
+  };
+
+  const addTask = () => {
+    const newTask = {
+      taskName: task,
+      deadLine: deadLine,
+    };
+
+    setTodo([...todo, newTask]);
+    setTask("");
+    setDeadline(0);
+  };
+
+  const completeTask = (taskNameToDelete: string) => {
+    setTodo(
+      todo.filter((task) => {
+        return task.taskName != taskNameToDelete;
+      })
+    );
+  };
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="header">
+        <div className="inputContainer">
+          <input
+            type="text"
+            name="task"
+            placeholder="Add a task"
+            value={task}
+            onChange={handleChange}
+          />
+          <input
+            type="number"
+            name="deadline"
+            placeholder="Set a deadline (in days)"
+            value={deadLine}
+            onChange={handleChange}
+          />
+        </div>
+        <button onClick={addTask}>Add Task</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className="todoList">
+        {todo.map((task: ITask, key: number) => {
+          return <TodoTask key={key} task={task} completeTask={completeTask} />;
+        })}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
